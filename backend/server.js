@@ -1,15 +1,11 @@
 // Entry file for the backend app
-// where we register the express app
-
-// dovenv is the package that loads environment variables
-// from .env file into process.env object available globally in node.js environment
-// config() attaches environment variables to process.env
 require("dotenv").config();
 
-// Require express that installed via npm
+// Require express and mongoose
 const express = require("express");
-// Require mongoose that installed via npm
 const mongoose = require("mongoose");
+const cors = require("cors"); // Require cors package
+
 // Require routes
 const workoutRoutes = require("./routes/workouts");
 
@@ -17,14 +13,15 @@ const workoutRoutes = require("./routes/workouts");
 const app = express();
 
 // Middleware:
-// any code that executes between us getting a request on the server
-// and us sending a response back to the client
-
 // Parse and attach data sent to server to request object
 app.use(express.json());
 
+// CORS Middleware
+// Allow requests from all origins (for development only)
+app.use(cors());
+
 // Global middleware
-// the arrow function will fire for each request that comes in
+// Logs the request path and method
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
@@ -46,10 +43,3 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-
-  // Require cors
-  const cors = require("cors");
-
-  // Allow requests from all origins (for development only)
-
-  app.use(cors());
