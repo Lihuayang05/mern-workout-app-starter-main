@@ -1,4 +1,3 @@
-// Entry file for the backend app
 require("dotenv").config();
 
 // Require express and mongoose
@@ -13,7 +12,7 @@ const workoutRoutes = require("./routes/workouts");
 const app = express();
 
 // Middleware:
-// Parse and attach data sent to server to request object
+// Parse and attach data sent to the server to the request object
 app.use(express.json());
 
 // CORS Middleware
@@ -23,23 +22,29 @@ app.use(cors());
 // Global middleware
 // Logs the request path and method
 app.use((req, res, next) => {
-  console.log(req.path, req.method);
+  console.log(`${req.method} ${req.path}`);
   next();
 });
 
 // Routes
-// workoutRoutes is triggered when we make a request to /api/workouts
+// Trigger workoutRoutes when we make a request to /api/workouts
 app.use("/api/workouts", workoutRoutes);
 
-// Connect to DB
+// Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
+    console.log("Connected to MongoDB");
     // Listen for requests
     app.listen(process.env.PORT, () => {
-      console.log("Connected to DB & listening on port", process.env.PORT);
+      console.log(`Server is running on port ${process.env.PORT}`);
     });
   })
   .catch((err) => {
-    console.log(err);
+    console.error("Database connection error:", err.message);
   });
+
+// Error handling middleware for unhandled routes
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
